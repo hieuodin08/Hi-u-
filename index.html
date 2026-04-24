@@ -1,0 +1,2803 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Học Đúng Cách</title>
+  <script>
+    MathJax = {
+      tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
+      options: { skipHtmlTags: ['script','noscript','style','textarea'] }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary: #e74c3c;
+      --secondary: #2ecc71;
+      --break: #3498db;
+      --dark: #1a1a2e;
+      --card: #16213e;
+      --card2: #0f3460;
+      --text: #eaeaea;
+      --muted: #a0aec0;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--dark);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    nav {
+      background: var(--card);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-logo { font-size: 1.4rem; font-weight: 700; color: var(--primary); }
+    .nav-logo span { color: var(--text); }
+    .nav-links { display: flex; gap: 8px; }
+    .nav-links button {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .nav-links button:hover, .nav-links button.active {
+      background: var(--card2);
+      color: var(--text);
+    }
+
+    /* PAGES */
+    .page { display: none; padding: 32px 24px; max-width: 900px; margin: 0 auto; }
+    .page.active { display: block; }
+
+    /* ===== TRANG CHỦ / POMODORO ===== */
+    .timer-card {
+      background: var(--card);
+      border-radius: 24px;
+      padding: 40px 32px;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      margin-bottom: 24px;
+    }
+
+    .mode-tabs {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+    .mode-tab {
+      padding: 8px 20px;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      background: var(--card2);
+      color: var(--muted);
+    }
+    .mode-tab.active { background: var(--primary); color: white; }
+    .mode-tab.break-tab.active { background: var(--break); }
+
+    .timer-circle {
+      width: 220px;
+      height: 220px;
+      margin: 0 auto 28px;
+      position: relative;
+    }
+    .timer-circle svg {
+      transform: rotate(-90deg);
+      width: 100%;
+      height: 100%;
+    }
+    .timer-circle .bg-ring { fill: none; stroke: var(--card2); stroke-width: 8; }
+    .timer-circle .progress-ring {
+      fill: none;
+      stroke: var(--primary);
+      stroke-width: 8;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1s linear, stroke 0.3s;
+    }
+    .timer-display {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+    .timer-display .time {
+      font-size: 3rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .timer-display .phase-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .timer-controls { display: flex; gap: 12px; justify-content: center; margin-bottom: 24px; }
+    .btn-main {
+      padding: 14px 40px;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 700;
+      background: var(--primary);
+      color: white;
+      transition: all 0.2s;
+      box-shadow: 0 4px 15px rgba(231,76,60,0.4);
+    }
+    .btn-main:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(231,76,60,0.5); }
+    .btn-main.running { background: #e67e22; box-shadow: 0 4px 15px rgba(230,126,34,0.4); }
+    .btn-reset {
+      padding: 14px 20px;
+      border-radius: 50px;
+      border: 2px solid var(--card2);
+      cursor: pointer;
+      font-size: 1rem;
+      background: transparent;
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+    .btn-reset:hover { border-color: var(--muted); color: var(--text); }
+
+    .session-info {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .session-badge {
+      background: var(--card2);
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+    }
+    .session-badge span { color: var(--primary); font-weight: 700; }
+
+    /* STATS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+    }
+    .stat-card .stat-number { font-size: 2rem; font-weight: 700; color: var(--primary); }
+    .stat-card .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+
+    /* STREAK */
+    .streak-card {
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+      border-radius: 16px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .streak-fire { font-size: 2.5rem; }
+    .streak-info h3 { font-size: 1.1rem; }
+    .streak-info p { font-size: 0.85rem; opacity: 0.85; }
+
+    /* ===== TRANG PHƯƠNG PHÁP ===== */
+    .method-hero {
+      background: linear-gradient(135deg, var(--card), var(--card2));
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .method-hero h2 { font-size: 1.8rem; margin-bottom: 8px; }
+    .method-hero p { color: var(--muted); line-height: 1.6; }
+
+    .method-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .step-card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px;
+      border-left: 4px solid var(--primary);
+      transition: transform 0.2s;
+    }
+    .step-card:hover { transform: translateY(-4px); }
+    .step-card.break { border-left-color: var(--break); }
+    .step-card.long { border-left-color: var(--secondary); }
+    .step-number {
+      width: 36px; height: 36px;
+      background: var(--primary);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.9rem;
+      margin-bottom: 12px;
+    }
+    .step-card.break .step-number { background: var(--break); }
+    .step-card.long .step-number { background: var(--secondary); }
+    .step-card h3 { margin-bottom: 8px; font-size: 1rem; }
+    .step-card p { color: var(--muted); font-size: 0.85rem; line-height: 1.6; }
+
+    /* TIPS */
+    .tips-section h2 { font-size: 1.3rem; margin-bottom: 16px; }
+    .tip-list { display: flex; flex-direction: column; gap: 12px; }
+    .tip-item {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .tip-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .tip-content h4 { font-size: 0.95rem; margin-bottom: 4px; }
+    .tip-content p { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+
+    /* ===== NHẬT KÝ ===== */
+    .log-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: gap;
+      gap: 12px;
+    }
+    .log-header h2 { font-size: 1.4rem; }
+    .btn-clear {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid #e74c3c44;
+      background: transparent;
+      color: #e74c3c;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+    .btn-clear:hover { background: #e74c3c22; }
+
+    .log-empty {
+      text-align: center;
+      padding: 48px;
+      color: var(--muted);
+    }
+    .log-empty .log-empty-icon { font-size: 3rem; margin-bottom: 12px; }
+
+    .log-list { display: flex; flex-direction: column; gap: 10px; }
+    .log-item {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .log-item .log-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--primary);
+      flex-shrink: 0;
+    }
+    .log-item .log-dot.break { background: var(--break); }
+    .log-item .log-text { flex: 1; font-size: 0.9rem; }
+    .log-item .log-time { font-size: 0.8rem; color: var(--muted); }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 84px;
+      right: 24px;
+      background: var(--card2);
+      color: var(--text);
+      padding: 14px 22px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 999;
+      max-width: 300px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ===== RELAX FULLSCREEN ===== */
+    .relax-overlay {
+      position: fixed; inset: 0;
+      background: #0a0f1e;
+      z-index: 2000;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.5s ease;
+      overflow: hidden;
+    }
+    .relax-overlay.show { opacity: 1; pointer-events: all; }
+
+    /* floating particles background */
+    .relax-particles {
+      position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+    }
+    .relax-particle {
+      position: absolute; border-radius: 50%;
+      background: rgba(52,152,219,0.15);
+      animation: floatUp linear infinite;
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(0) scale(1); opacity: 0.6; }
+      100% { transform: translateY(-110vh) scale(0.3); opacity: 0; }
+    }
+
+    /* break timer badge top-right */
+    .relax-badge {
+      position: absolute; top: 24px; right: 28px;
+      background: rgba(52,152,219,0.2);
+      border: 1px solid rgba(52,152,219,0.4);
+      color: #3498db; font-size: 1rem; font-weight: 700;
+      padding: 8px 18px; border-radius: 20px;
+      letter-spacing: 1px;
+    }
+
+    /* skip button */
+    .relax-skip {
+      position: absolute; bottom: 28px;
+      background: transparent; border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.4); font-size: 0.8rem;
+      padding: 8px 20px; border-radius: 20px; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .relax-skip:hover { color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.3); }
+
+    /* step dots */
+    .relax-dots {
+      position: absolute; bottom: 70px;
+      display: flex; gap: 8px;
+    }
+    .relax-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      transition: all 0.4s;
+    }
+    .relax-dot.active { background: #3498db; transform: scale(1.4); }
+    .relax-dot.done   { background: rgba(52,152,219,0.5); }
+
+    /* main step card */
+    .relax-card {
+      text-align: center; padding: 0 24px;
+      max-width: 500px; width: 100%;
+      animation: stepIn 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    @keyframes stepIn {
+      from { opacity: 0; transform: translateY(40px) scale(0.92); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes stepOut {
+      from { opacity: 1; transform: translateY(0) scale(1); }
+      to   { opacity: 0; transform: translateY(-40px) scale(0.92); }
+    }
+    .relax-card.leaving { animation: stepOut 0.4s ease forwards; }
+
+    .relax-anim-wrap {
+      width: 140px; height: 140px;
+      margin: 0 auto 28px;
+      position: relative;
+    }
+
+    /* === WATER ANIM === */
+    .anim-water {
+      width: 80px; height: 80px;
+      margin: 30px auto 0;
+      position: relative;
+    }
+    .water-drop {
+      width: 50px; height: 60px;
+      background: linear-gradient(160deg,#74d7ff,#3498db);
+      border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+      margin: 0 auto;
+      animation: waterBounce 1.4s ease-in-out infinite;
+      box-shadow: 0 8px 24px rgba(52,152,219,0.5);
+    }
+    .water-ripple {
+      position: absolute; bottom: -8px; left: 50%;
+      transform: translateX(-50%);
+      width: 60px; height: 12px;
+      border-radius: 50%;
+      background: rgba(52,152,219,0.3);
+      animation: ripple 1.4s ease-in-out infinite;
+    }
+    @keyframes waterBounce {
+      0%,100% { transform: translateY(0) scaleX(1); }
+      40%      { transform: translateY(-30px) scaleX(0.92); }
+      60%      { transform: translateY(-32px) scaleX(0.88); }
+      80%      { transform: translateY(0) scaleX(1.1); }
+    }
+    @keyframes ripple {
+      0%,100% { transform: translateX(-50%) scaleX(1); opacity: 0.5; }
+      40%      { transform: translateX(-50%) scaleX(0.5); opacity: 0.2; }
+      80%      { transform: translateX(-50%) scaleX(1.3); opacity: 0.7; }
+    }
+
+    /* === STRETCH ANIM === */
+    .anim-stretch {
+      width: 70px; height: 100px;
+      margin: 20px auto 0;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 2px;
+      animation: stretchBody 2s ease-in-out infinite;
+    }
+    .stretch-head {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg,#f39c12,#e67e22);
+    }
+    .stretch-body {
+      width: 4px; height: 36px; background: #e67e22; border-radius: 2px;
+    }
+    .stretch-arms {
+      position: absolute; top: 46px;
+      width: 80px; height: 4px; background: #e67e22; border-radius: 2px;
+      animation: armsRaise 2s ease-in-out infinite;
+      transform-origin: center;
+    }
+    .stretch-legs {
+      display: flex; gap: 10px; margin-top: 2px;
+    }
+    .stretch-leg {
+      width: 4px; height: 28px; background: #e67e22; border-radius: 2px;
+    }
+    @keyframes stretchBody {
+      0%,100% { transform: scaleY(1) translateY(0); }
+      50%      { transform: scaleY(1.15) translateY(-8px); }
+    }
+    @keyframes armsRaise {
+      0%,100% { transform: rotate(0deg); }
+      50%      { transform: rotate(-30deg); }
+    }
+
+    /* === EYE ANIM === */
+    .anim-eye {
+      width: 100px; height: 60px;
+      margin: 40px auto 0;
+      background: white;
+      border-radius: 50%;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 0 4px rgba(255,255,255,0.2);
+    }
+    .eye-pupil {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #1a1a2e;
+      position: absolute; top: 50%; left: 50%;
+      margin: -14px 0 0 -14px;
+      animation: eyeRoll 3s linear infinite;
+    }
+    .eye-pupil::after {
+      content: '';
+      position: absolute; top: 6px; left: 6px;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: white;
+    }
+    @keyframes eyeRoll {
+      0%   { transform: translate(0,-18px); }
+      25%  { transform: translate(22px,0); }
+      50%  { transform: translate(0,18px); }
+      75%  { transform: translate(-22px,0); }
+      100% { transform: translate(0,-18px); }
+    }
+
+    /* === FREE TIME ANIM === */
+    .anim-free {
+      width: 80px; height: 80px; margin: 20px auto 0;
+      position: relative;
+    }
+    .free-star {
+      position: absolute; font-size: 2rem;
+      animation: twinkle ease-in-out infinite;
+    }
+    .free-star:nth-child(1) { top: 0; left: 50%; transform: translateX(-50%); animation-duration: 1.2s; }
+    .free-star:nth-child(2) { top: 30%; left: 0; animation-duration: 1.8s; animation-delay: 0.3s; }
+    .free-star:nth-child(3) { top: 30%; right: 0; animation-duration: 1.5s; animation-delay: 0.6s; }
+    .free-star:nth-child(4) { bottom: 0; left: 20%; animation-duration: 2s; animation-delay: 0.1s; }
+    .free-star:nth-child(5) { bottom: 0; right: 20%; animation-duration: 1.6s; animation-delay: 0.8s; }
+    @keyframes twinkle {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.3; transform: scale(0.6); }
+    }
+
+    /* step text */
+    .relax-step-title {
+      font-size: 1.8rem; font-weight: 800;
+      color: #fff; margin-bottom: 10px;
+    }
+    .relax-step-desc {
+      font-size: 1rem; color: rgba(255,255,255,0.6);
+      line-height: 1.6; margin-bottom: 28px;
+    }
+
+    /* per-step progress bar */
+    .relax-bar-wrap {
+      width: 240px; height: 6px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px; margin: 0 auto;
+      overflow: hidden;
+    }
+    .relax-bar {
+      height: 100%; background: #3498db;
+      border-radius: 3px; width: 0%;
+      transition: width 1s linear;
+    }
+
+    /* PAGE TITLE */
+    .page-title { font-size: 1.6rem; font-weight: 700; margin-bottom: 24px; }
+    .page-title span { color: var(--primary); }
+
+    /* ===== SỔ CÔNG THỨC ===== */
+    .notebook-cover {
+      background: linear-gradient(135deg, #1a472a, #2d6a4f);
+      border-radius: 20px 20px 0 0;
+      padding: 28px 32px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 0;
+      border-bottom: 4px solid #f4d03f;
+    }
+    .notebook-cover-left h2 { font-size: 1.5rem; font-weight: 800; letter-spacing: 1px; }
+    .notebook-cover-left p { font-size: 0.82rem; color: rgba(255,255,255,0.7); margin-top: 4px; }
+    .notebook-cover-right { font-size: 3rem; }
+
+    .notebook-tabs {
+      background: #0d2318;
+      padding: 0 24px;
+      display: flex;
+      gap: 4px;
+      border-bottom: 2px solid #1a472a;
+    }
+    .notebook-tab {
+      padding: 12px 24px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.4);
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+      margin-bottom: -2px;
+    }
+    .notebook-tab:hover { color: rgba(255,255,255,0.7); }
+    .notebook-tab.active { color: #f4d03f; border-bottom-color: #f4d03f; }
+
+    .notebook-search {
+      background: #0d1f14;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .notebook-search input {
+      flex: 1;
+      background: #1a3324;
+      border: 1px solid #2d6a4f;
+      color: var(--text);
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border 0.2s;
+    }
+    .notebook-search input:focus { border-color: #f4d03f; }
+    .notebook-search input::placeholder { color: #4a7c5a; }
+    .search-icon { color: #4a7c5a; font-size: 1.1rem; }
+
+    .notebook-body {
+      background: #f5f0e8;
+      background-image:
+        repeating-linear-gradient(
+          transparent,
+          transparent 31px,
+          #c8d4e0 31px,
+          #c8d4e0 32px
+        );
+      border-left: 4px solid #e8b4b8;
+      padding: 16px 24px 24px 60px;
+      position: relative;
+      min-height: 400px;
+      border-radius: 0 0 20px 20px;
+    }
+    .notebook-body::before {
+      content: '';
+      position: absolute;
+      left: 44px;
+      top: 0; bottom: 0;
+      width: 2px;
+      background: rgba(200,100,100,0.3);
+    }
+
+    .formula-section { display: none; }
+    .formula-section.active { display: block; }
+
+    .formula-section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin: 24px 0 12px;
+      border-bottom: 1px dashed #ccc;
+      padding-bottom: 6px;
+    }
+
+    .formula-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .formula-card {
+      background: rgba(255,255,255,0.85);
+      border-radius: 10px;
+      padding: 14px 18px;
+      border: 1px solid #ddd;
+      box-shadow: 2px 3px 8px rgba(0,0,0,0.08);
+      transition: all 0.2s;
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+    }
+    .formula-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: var(--f-color, #e74c3c);
+    }
+    .formula-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 3px 6px 16px rgba(0,0,0,0.14);
+    }
+    .formula-card.hidden { display: none; }
+
+    .formula-name {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .formula-math {
+      font-size: 1rem;
+      color: #1a1a1a;
+      line-height: 1.8;
+      min-height: 36px;
+    }
+    .formula-note {
+      font-size: 0.75rem;
+      color: #888;
+      margin-top: 6px;
+      font-style: italic;
+      border-top: 1px dashed #ddd;
+      padding-top: 6px;
+    }
+    .formula-tag {
+      display: inline-block;
+      font-size: 0.68rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: var(--f-color, #e74c3c);
+      color: white;
+      margin-bottom: 6px;
+      opacity: 0.85;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+      font-style: italic;
+    }
+
+    /* ===== MUSIC PLAYER ===== */
+    .music-player {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    }
+    .music-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .music-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .music-vinyl {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: conic-gradient(#1a1a2e 0deg, #0f3460 90deg, #1a1a2e 180deg, #0f3460 270deg, #1a1a2e 360deg);
+      border: 3px solid #e74c3c;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem;
+      transition: transform 0.1s;
+      flex-shrink: 0;
+    }
+    .music-vinyl.spinning { animation: spin 3s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .music-track-info { flex: 1; min-width: 0; }
+    .music-track-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .music-track-sub { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+    .music-controls { display: flex; align-items: center; gap: 8px; }
+    .music-btn {
+      background: var(--card2);
+      border: none;
+      color: var(--text);
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .music-btn:hover { background: #1a4a7a; transform: scale(1.1); }
+    .music-btn.active { background: var(--primary); }
+
+    .music-bottom {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .volume-icon { font-size: 1rem; color: var(--muted); cursor: pointer; flex-shrink: 0; }
+    .volume-icon:hover { color: var(--text); }
+    .volume-slider {
+      flex: 1;
+      -webkit-appearance: none;
+      height: 4px;
+      border-radius: 4px;
+      background: var(--card2);
+      outline: none;
+      cursor: pointer;
+    }
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .volume-slider::-webkit-slider-thumb:hover { transform: scale(1.3); }
+    .volume-value {
+      font-size: 0.78rem;
+      color: var(--muted);
+      width: 30px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .playlist-toggle {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 0.78rem;
+      cursor: pointer;
+      padding: 4px 0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 10px;
+      transition: color 0.2s;
+    }
+    .playlist-toggle:hover { color: var(--text); }
+
+    .playlist {
+      margin-top: 10px;
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+    .playlist.open { display: flex; }
+    .playlist-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .playlist-item:hover { background: var(--card2); color: var(--text); }
+    .playlist-item.active { background: var(--card2); color: var(--primary); font-weight: 600; }
+    .playlist-item .pl-num { font-size: 0.75rem; width: 18px; text-align: center; flex-shrink: 0; }
+    .playlist-item .pl-icon { flex-shrink: 0; }
+    .playlist-item .pl-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ===== PRESET BAR ===== */
+    .preset-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .preset-label { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
+    .preset-btn {
+      padding: 6px 14px;
+      border-radius: 16px;
+      border: 1.5px solid var(--card2);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .preset-btn:hover { border-color: var(--primary); color: var(--text); }
+    .preset-btn.active { border-color: var(--primary); background: var(--primary); color: white; }
+
+    .custom-preset-row {
+      display: none;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      background: var(--card2);
+      padding: 14px 20px;
+      border-radius: 14px;
+    }
+    .custom-preset-row.open { display: flex; }
+    .custom-preset-row label { font-size: 0.8rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+    .custom-preset-row input[type=number] {
+      width: 54px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1.5px solid #2a3a5a;
+      background: var(--dark);
+      color: var(--text);
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-align: center;
+      outline: none;
+      transition: border 0.2s;
+    }
+    .custom-preset-row input[type=number]:focus { border-color: var(--primary); }
+    .btn-apply-custom {
+      padding: 8px 18px;
+      border-radius: 10px;
+      border: none;
+      background: var(--primary);
+      color: white;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+    .btn-apply-custom:hover { opacity: 0.85; }
+
+    .cycle-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .cycle-toggle-label {
+      font-size: 0.82rem;
+      color: var(--muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      user-select: none;
+      transition: color 0.2s;
+    }
+    .cycle-toggle-label:hover { color: var(--text); }
+    .toggle-switch {
+      width: 38px; height: 21px;
+      background: var(--card2);
+      border-radius: 11px;
+      position: relative;
+      transition: background 0.25s;
+      flex-shrink: 0;
+    }
+    .toggle-switch.on { background: var(--secondary); }
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 15px; height: 15px;
+      background: white;
+      border-radius: 50%;
+      top: 3px; left: 3px;
+      transition: transform 0.25s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+    .toggle-switch.on::after { transform: translateX(17px); }
+
+    /* ===== NOTE WIDGET ===== */
+    .note-fab {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      width: 50px; height: 50px;
+      border-radius: 50%;
+      background: #f4d03f;
+      color: #1a1a2e;
+      border: none;
+      cursor: pointer;
+      font-size: 1.3rem;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+      transition: all 0.2s;
+      z-index: 1001;
+    }
+    .note-fab:hover { transform: scale(1.1) rotate(-8deg); }
+    .note-fab.open { background: #e74c3c; color: white; }
+    .note-count-badge {
+      position: absolute;
+      top: -4px; right: -4px;
+      background: #1a1a2e;
+      color: #f4d03f;
+      font-size: 0.62rem;
+      font-weight: 800;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 1.5px solid #f4d03f;
+    }
+
+    .note-panel {
+      position: fixed;
+      bottom: 84px; right: 24px;
+      width: 430px;
+      height: 540px;
+      background: var(--card);
+      border-radius: 18px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.55);
+      display: flex;
+      flex-direction: column;
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(24px) scale(0.95);
+      pointer-events: none;
+      transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.34,1.56,0.64,1);
+      overflow: hidden;
+    }
+    .note-panel.open {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: all;
+    }
+
+    .note-header {
+      background: linear-gradient(135deg, #1a472a, #2d6a4f);
+      padding: 11px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 2.5px solid #f4d03f;
+      flex-shrink: 0;
+    }
+    .note-header-title {
+      flex: 1;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: white;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .note-header-info {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.6);
+      background: rgba(0,0,0,0.2);
+      padding: 3px 10px;
+      border-radius: 10px;
+      font-weight: 400;
+    }
+    .note-header-btns { display: flex; gap: 5px; }
+    .note-header-btn {
+      width: 28px; height: 28px;
+      border-radius: 7px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.82rem;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.12);
+      color: white;
+      transition: background 0.15s;
+    }
+    .note-header-btn:hover { background: rgba(255,255,255,0.28); }
+    .note-header-btn.danger:hover { background: rgba(231,76,60,0.65); }
+
+    .note-tabs-row {
+      background: #0d2318;
+      padding: 5px 10px;
+      display: flex;
+      gap: 3px;
+      overflow-x: auto;
+      flex-shrink: 0;
+      align-items: center;
+      scrollbar-width: thin;
+      scrollbar-color: #2d6a4f transparent;
+    }
+    .note-tabs-row::-webkit-scrollbar { height: 3px; }
+    .note-tabs-row::-webkit-scrollbar-thumb { background: #2d6a4f; border-radius: 3px; }
+
+    .note-tab {
+      display: flex; align-items: center; gap: 4px;
+      padding: 5px 11px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.4);
+      cursor: pointer;
+      font-size: 0.77rem;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: all 0.15s;
+      flex-shrink: 0;
+      max-width: 120px;
+    }
+    .note-tab .tab-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 85px;
+    }
+    .note-tab:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.75); }
+    .note-tab.active { background: var(--card); color: #f4d03f; }
+    .tab-del {
+      opacity: 0;
+      font-size: 0.65rem;
+      color: #e74c3c;
+      margin-left: 1px;
+      flex-shrink: 0;
+      line-height: 1;
+      padding: 1px 2px;
+      border-radius: 3px;
+    }
+    .note-tab:hover .tab-del,
+    .note-tab.active .tab-del { opacity: 0.7; }
+    .note-tab:hover .tab-del:hover,
+    .note-tab.active .tab-del:hover { opacity: 1; background: rgba(231,76,60,0.3); }
+
+    .note-tab-add {
+      width: 26px; height: 26px;
+      border-radius: 7px;
+      border: 1.5px dashed rgba(255,255,255,0.22);
+      background: transparent;
+      color: rgba(255,255,255,0.38);
+      cursor: pointer;
+      font-size: 1rem; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+      flex-shrink: 0;
+      margin-left: 3px;
+    }
+    .note-tab-add:hover { border-color: #f4d03f; color: #f4d03f; background: rgba(244,208,63,0.08); }
+
+    .note-toolbar {
+      background: #f8f4ec;
+      padding: 5px 8px;
+      display: flex;
+      align-items: center;
+      gap: 1px;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+      border-bottom: 1px solid #ddd;
+      row-gap: 3px;
+    }
+    .tb-btn {
+      width: 27px; height: 25px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 0.82rem;
+      color: #333;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.1s;
+    }
+    .tb-btn:hover { background: #e0d8cc; }
+    .tb-sep { width: 1px; height: 18px; background: #ccc; margin: 0 3px; flex-shrink: 0; }
+    .tb-select {
+      padding: 2px 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background: white;
+      font-size: 0.73rem;
+      color: #333;
+      cursor: pointer;
+      outline: none;
+    }
+    .tb-color {
+      width: 22px; height: 22px;
+      padding: 1px 2px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+      background: none;
+    }
+
+    .note-editor-wrap {
+      flex: 1;
+      overflow-y: auto;
+      background: #f5f0e8;
+      background-image: repeating-linear-gradient(transparent, transparent 31px, #c8d4e0 31px, #c8d4e0 32px);
+      border-left: 4px solid #e8b4b8;
+      position: relative;
+    }
+    .note-editor-wrap::before {
+      content: '';
+      position: absolute;
+      left: 34px; top: 0; bottom: 0;
+      width: 1px;
+      background: rgba(200,100,100,0.22);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .note-editor {
+      min-height: 100%;
+      padding: 8px 14px 16px 46px;
+      outline: none;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 0.9rem;
+      color: #1a1a2e;
+      line-height: 2rem;
+      caret-color: #e74c3c;
+      word-break: break-word;
+    }
+    .note-editor:empty::before {
+      content: attr(data-placeholder);
+      color: #aaa;
+      pointer-events: none;
+      font-style: italic;
+    }
+    .note-editor h1 { font-size: 1.25rem; margin: 2px 0; color: #1a472a; line-height: 2rem; }
+    .note-editor h2 { font-size: 1.05rem; margin: 2px 0; color: #2d6a4f; line-height: 2rem; }
+    .note-editor ul, .note-editor ol { padding-left: 22px; }
+    .note-editor p { margin: 0; }
+
+    .note-footer {
+      background: #0d2318;
+      padding: 5px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.42);
+      flex-shrink: 0;
+    }
+    .save-indicator { display: flex; align-items: center; gap: 5px; }
+    .save-dot { width: 6px; height: 6px; border-radius: 50%; background: #2ecc71; transition: background 0.3s; }
+    .save-dot.dirty { background: #e67e22; }
+
+    .tab-rename-input {
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #f4d03f;
+      color: #f4d03f;
+      font-size: 0.77rem;
+      font-weight: 600;
+      width: 75px;
+      outline: none;
+      font-family: inherit;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 500px) {
+      nav { padding: 12px 16px; }
+      .nav-logo { font-size: 1.1rem; }
+      .nav-links button { padding: 6px 10px; font-size: 0.8rem; }
+      .page { padding: 20px 16px; }
+      .notebook-body { padding-left: 36px; }
+      .note-panel { width: calc(100vw - 20px); right: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">🍅 Học <span>Đúng Cách</span></div>
+  <div class="nav-links">
+    <button class="active" onclick="showPage('timer', this)">⏱ Học</button>
+    <button onclick="showPage('formulas', this)">📓 Công thức</button>
+    <button onclick="showPage('method', this)">📚 Phương pháp</button>
+    <button onclick="showPage('log', this)">📋 Nhật ký</button>
+  </div>
+</nav>
+
+<!-- ===== TRANG HẸN GIỜ ===== -->
+<div class="page active" id="page-timer">
+  <div class="timer-card">
+    <div class="preset-bar">
+      <span class="preset-label">Chu kỳ:</span>
+      <button class="preset-btn active" id="preset-25" onclick="applyPreset(25,5,15,this)">25 / 5 phút</button>
+      <button class="preset-btn" id="preset-30" onclick="applyPreset(30,5,15,this)">30 / 5 phút</button>
+      <button class="preset-btn" id="preset-40" onclick="applyPreset(40,10,20,this)">40 / 10 phút</button>
+      <button class="preset-btn" id="preset-50" onclick="applyPreset(50,10,30,this)">50 / 10 phút</button>
+      <button class="preset-btn" id="preset-custom" onclick="toggleCustomPreset(this)">✏️ Tùy chỉnh</button>
+    </div>
+    <div class="custom-preset-row" id="customPresetRow">
+      <label>🎯 Học <input type="number" id="customWork" value="25" min="1" max="120"> phút</label>
+      <label>☕ Nghỉ ngắn <input type="number" id="customShort" value="5" min="1" max="60"> phút</label>
+      <label>🌿 Nghỉ dài <input type="number" id="customLong" value="15" min="5" max="90"> phút</label>
+      <button class="btn-apply-custom" onclick="applyCustomPreset()">Áp dụng</button>
+    </div>
+
+    <div class="mode-tabs">
+      <button class="mode-tab active" id="modeTabWork" onclick="setMode('work', this)">🎯 Học (25 phút)</button>
+      <button class="mode-tab break-tab" id="modeTabShort" onclick="setMode('short', this)">☕ Nghỉ ngắn (5 phút)</button>
+      <button class="mode-tab break-tab" id="modeTabLong" onclick="setMode('long', this)">🌿 Nghỉ dài (15 phút)</button>
+    </div>
+
+    <div class="timer-circle">
+      <svg viewBox="0 0 100 100">
+        <circle class="bg-ring" cx="50" cy="50" r="44"/>
+        <circle class="progress-ring" id="progressRing" cx="50" cy="50" r="44"
+          stroke-dasharray="276.46"
+          stroke-dashoffset="0"/>
+      </svg>
+      <div class="timer-display">
+        <div class="time" id="timerDisplay">25:00</div>
+        <div class="phase-label" id="phaseLabel">Sẵn sàng học!</div>
+      </div>
+    </div>
+
+    <div class="timer-controls">
+      <button class="btn-main" id="btnStart" onclick="toggleTimer()">▶ Bắt đầu</button>
+      <button class="btn-reset" onclick="resetTimer()">↺ Đặt lại</button>
+    </div>
+
+    <div style="text-align:center;margin-top:12px">
+      <button onclick="showRelaxModal('short')" style="background:transparent;border:1px solid rgba(52,152,219,0.4);color:#3498db;padding:7px 18px;border-radius:20px;font-size:0.8rem;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='rgba(52,152,219,0.1)'" onmouseout="this.style.background='transparent'">👁 Xem trước màn hình nghỉ</button>
+    </div>
+
+    <div class="session-info">
+      <div class="session-badge">Vòng hôm nay: <span id="todayCount">0</span></div>
+      <div class="session-badge">Thời gian học: <span id="totalMinutes">0</span> phút</div>
+    </div>
+
+    <div class="cycle-row">
+      <label class="cycle-toggle-label" onclick="toggleAutoCycle()">
+        <div class="toggle-switch on" id="autoCycleSwitch"></div>
+        Tự động chuyển phiên
+      </label>
+    </div>
+  </div>
+
+  <!-- MUSIC PLAYER -->
+  <div class="music-player">
+    <div class="music-header">
+      <div class="music-header-left">
+        <div class="music-vinyl" id="musicVinyl">🎵</div>
+        <div class="music-track-info">
+          <div class="music-track-name" id="trackName">Chưa phát nhạc</div>
+          <div class="music-track-sub" id="trackSub">Nhạc sẽ tự phát khi bắt đầu học</div>
+        </div>
+      </div>
+      <div class="music-controls">
+        <button class="music-btn" onclick="prevTrack()" title="Bài trước">⏮</button>
+        <button class="music-btn" id="btnPlayPause" onclick="toggleMusic()" title="Phát/Dừng">▶</button>
+        <button class="music-btn" onclick="nextTrack()" title="Bài tiếp">⏭</button>
+        <button class="music-btn" id="btnShuffle" onclick="toggleShuffle()" title="Ngẫu nhiên">🔀</button>
+      </div>
+    </div>
+    <div class="music-bottom">
+      <span class="volume-icon" id="volIcon" onclick="toggleMute()">🔊</span>
+      <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="60" oninput="setVolume(this.value)"/>
+      <span class="volume-value" id="volValue">60%</span>
+    </div>
+    <button class="playlist-toggle" onclick="togglePlaylist()">
+      <span id="plToggleIcon">▸</span> Danh sách phát (7 bài)
+    </button>
+    <div class="playlist" id="playlistEl"></div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-number" id="statToday">0</div>
+      <div class="stat-label">🍅 Pomodoro hôm nay</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="statTotal">0</div>
+      <div class="stat-label">📊 Tổng Pomodoro</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="statStreak">0</div>
+      <div class="stat-label">🔥 Ngày liên tiếp</div>
+    </div>
+  </div>
+
+  <div class="streak-card">
+    <div class="streak-fire">🔥</div>
+    <div class="streak-info">
+      <h3 id="streakTitle">Hãy bắt đầu chuỗi học của bạn!</h3>
+      <p id="streakSub">Học đều đặn mỗi ngày để duy trì streak nhé!</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TRANG PHƯƠNG PHÁP ===== -->
+<div class="page" id="page-method">
+  <div class="method-hero">
+    <div style="font-size:3rem;margin-bottom:12px;">🍅</div>
+    <h2>Kỹ thuật Pomodoro là gì?</h2>
+    <p>Được phát triển bởi Francesco Cirillo vào cuối những năm 1980,<br>
+    Pomodoro chia thời gian học thành các khoảng ngắn tập trung cao độ,<br>
+    xen kẽ với các khoảng nghỉ ngơi — giúp não bộ hoạt động hiệu quả nhất.</p>
+  </div>
+
+  <div class="method-steps">
+    <div class="step-card">
+      <div class="step-number">1</div>
+      <h3>🎯 Chọn nhiệm vụ</h3>
+      <p>Quyết định rõ ràng bạn sẽ học môn gì, làm bài tập nào trong 25 phút tới. Mục tiêu cụ thể giúp tập trung hiệu quả hơn.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-number">2</div>
+      <h3>⏱ Học 25 phút</h3>
+      <p>Bấm hẹn giờ và học tập trung hoàn toàn. Không điện thoại, không mạng xã hội. Đây là khoảng thời gian của bạn!</p>
+    </div>
+    <div class="step-card break">
+      <div class="step-number break">3</div>
+      <h3>☕ Nghỉ 5 phút</h3>
+      <p>Sau mỗi Pomodoro, nghỉ ngơi hoàn toàn. Đứng dậy, uống nước, nhìn ra xa. Đây là lúc não củng cố kiến thức vừa học.</p>
+    </div>
+    <div class="step-card long">
+      <div class="step-number">4</div>
+      <h3>🌿 Nghỉ dài sau 4 vòng</h3>
+      <p>Sau 4 Pomodoro (2 tiếng học), nghỉ 15-30 phút. Ăn nhẹ, vận động, thư giãn đầu óc thật sự.</p>
+    </div>
+  </div>
+
+  <div class="tips-section">
+    <h2>💡 Mẹo học hiệu quả hơn</h2>
+    <div class="tip-list">
+      <div class="tip-item">
+        <div class="tip-icon">📵</div>
+        <div class="tip-content">
+          <h4>Tắt thông báo điện thoại</h4>
+          <p>Mỗi lần bị ngắt quãng mất trung bình 23 phút để tập trung trở lại. Hãy để điện thoại sang chế độ im lặng trong mỗi Pomodoro.</p>
+        </div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon">📝</div>
+        <div class="tip-content">
+          <h4>Ghi chú bằng tay</h4>
+          <p>Viết tay giúp ghi nhớ tốt hơn đánh máy. Hãy tóm tắt kiến thức quan trọng sau mỗi Pomodoro.</p>
+        </div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon">🎯</div>
+        <div class="tip-content">
+          <h4>Đặt mục tiêu nhỏ mỗi vòng</h4>
+          <p>Thay vì "học Toán", hãy đặt mục tiêu cụ thể: "Làm xong 5 bài tập đạo hàm". Mục tiêu rõ ràng = kết quả rõ ràng.</p>
+        </div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon">💧</div>
+        <div class="tip-content">
+          <h4>Uống đủ nước</h4>
+          <p>Não bộ hoạt động cần nước. Uống một cốc nước trong mỗi lần nghỉ giúp duy trì sự tập trung suốt buổi học.</p>
+        </div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon">🌅</div>
+        <div class="tip-content">
+          <h4>Học vào buổi sáng nếu có thể</h4>
+          <p>Não bộ minh mẫn nhất trong 2-3 giờ đầu sau khi thức dậy. Hãy ưu tiên các môn khó vào khung giờ này.</p>
+        </div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon">🔄</div>
+        <div class="tip-content">
+          <h4>Ôn lại sau mỗi buổi học</h4>
+          <p>Dành 5 phút cuối để đọc lại những gì vừa học. Việc ôn lại ngay giúp chuyển kiến thức từ trí nhớ ngắn hạn sang dài hạn.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TRANG CÔNG THỨC ===== -->
+<div class="page" id="page-formulas">
+
+  <div class="notebook-cover">
+    <div class="notebook-cover-left">
+      <h2>📓 SỔ CÔNG THỨC TOÁN</h2>
+      <p>Đạo hàm &amp; Tích phân — Giải tích 12</p>
+    </div>
+    <div class="notebook-cover-right">🧮</div>
+  </div>
+
+  <div class="notebook-tabs">
+    <button class="notebook-tab active" onclick="switchNbTab('deriv', this)">f′(x) &nbsp; Đạo Hàm</button>
+    <button class="notebook-tab" onclick="switchNbTab('integ', this)">∫ &nbsp; Tích Phân</button>
+    <button class="notebook-tab" onclick="switchNbTab('chem', this)">⚗️ &nbsp; Hóa Học</button>
+  </div>
+
+  <div class="notebook-search">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="formulaSearch" placeholder="Tìm công thức... (vd: sin, e^x, ln)" oninput="filterFormulas()"/>
+  </div>
+
+  <div class="notebook-body">
+    <div id="no-results" class="no-results" style="display:none">Không tìm thấy công thức phù hợp.</div>
+
+    <!-- ĐẠO HÀM -->
+    <div class="formula-section active" id="section-deriv">
+
+      <div class="formula-section-title">Đạo hàm hàm số cơ bản</div>
+      <div class="formula-grid">
+        <div class="formula-card" style="--f-color:#e74c3c" data-keywords="hằng số constant c">
+          <div class="formula-tag">Hằng số</div>
+          <div class="formula-name">Đạo hàm hằng số</div>
+          <div class="formula-math">$$(C)' = 0$$</div>
+          <div class="formula-note">Mọi hằng số đều có đạo hàm bằng 0.</div>
+        </div>
+        <div class="formula-card" style="--f-color:#e74c3c" data-keywords="lũy thừa x^n power">
+          <div class="formula-tag">Lũy thừa</div>
+          <div class="formula-name">Đạo hàm lũy thừa</div>
+          <div class="formula-math">$$(x^n)' = n \cdot x^{n-1}$$</div>
+          <div class="formula-note">Ví dụ: $(x^3)' = 3x^2$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#e74c3c" data-keywords="căn bậc hai sqrt x">
+          <div class="formula-tag">Căn bậc hai</div>
+          <div class="formula-name">Đạo hàm căn bậc hai</div>
+          <div class="formula-math">$$(\sqrt{x})' = \dfrac{1}{2\sqrt{x}}$$</div>
+          <div class="formula-note">Điều kiện: $x > 0$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#e74c3c" data-keywords="nghịch đảo 1/x">
+          <div class="formula-tag">Nghịch đảo</div>
+          <div class="formula-name">Đạo hàm 1/x</div>
+          <div class="formula-math">$$\left(\dfrac{1}{x}\right)' = -\dfrac{1}{x^2}$$</div>
+          <div class="formula-note">Điều kiện: $x \neq 0$</div>
+        </div>
+      </div>
+
+      <div class="formula-section-title">Hàm mũ &amp; logarit</div>
+      <div class="formula-grid">
+        <div class="formula-card" style="--f-color:#8e44ad" data-keywords="e^x mũ tự nhiên euler">
+          <div class="formula-tag">Mũ tự nhiên</div>
+          <div class="formula-name">Đạo hàm e^x</div>
+          <div class="formula-math">$$(e^x)' = e^x$$</div>
+          <div class="formula-note">Hàm số đặc biệt: đạo hàm bằng chính nó.</div>
+        </div>
+        <div class="formula-card" style="--f-color:#8e44ad" data-keywords="a^x mũ cơ số a">
+          <div class="formula-tag">Hàm mũ</div>
+          <div class="formula-name">Đạo hàm a^x</div>
+          <div class="formula-math">$$(a^x)' = a^x \cdot \ln a$$</div>
+          <div class="formula-note">Với $a > 0,\ a \neq 1$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#8e44ad" data-keywords="ln x logarit tự nhiên">
+          <div class="formula-tag">Logarit tự nhiên</div>
+          <div class="formula-name">Đạo hàm ln(x)</div>
+          <div class="formula-math">$$(\ln x)' = \dfrac{1}{x}$$</div>
+          <div class="formula-note">Điều kiện: $x > 0$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#8e44ad" data-keywords="log_a x logarit cơ số a">
+          <div class="formula-tag">Logarit cơ số a</div>
+          <div class="formula-name">Đạo hàm log_a(x)</div>
+          <div class="formula-math">$$(\log_a x)' = \dfrac{1}{x \cdot \ln a}$$</div>
+          <div class="formula-note">Với $a > 0,\ a \neq 1,\ x > 0$</div>
+        </div>
+      </div>
+
+      <div class="formula-section-title">Hàm lượng giác</div>
+      <div class="formula-grid">
+        <div class="formula-card" style="--f-color:#27ae60" data-keywords="sin sinx lượng giác">
+          <div class="formula-tag">Lượng giác</div>
+          <div class="formula-name">Đạo hàm sin(x)</div>
+          <div class="formula-math">$$(\sin x)' = \cos x$$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#27ae60" data-keywords="cos cosx lượng giác">
+          <div class="formula-tag">Lượng giác</div>
+          <div class="formula-name">Đạo hàm cos(x)</div>
+          <div class="formula-math">$$(\cos x)' = -\sin x$$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#27ae60" data-keywords="tan tanx tiếp tuyến">
+          <div class="formula-tag">Lượng giác</div>
+          <div class="formula-name">Đạo hàm tan(x)</div>
+          <div class="formula-math">$$(\tan x)' = \dfrac{1}{\cos^2 x}$$</div>
+          <div class="formula-note">Hay viết là $1 + \tan^2 x$. Điều kiện: $x \neq \dfrac{\pi}{2}+k\pi$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#27ae60" data-keywords="cot cotx cotangent">
+          <div class="formula-tag">Lượng giác</div>
+          <div class="formula-name">Đạo hàm cot(x)</div>
+          <div class="formula-math">$$(\cot x)' = -\dfrac{1}{\sin^2 x}$$</div>
+          <div class="formula-note">Điều kiện: $x \neq k\pi$</div>
+        </div>
+      </div>
+
+      <div class="formula-section-title">Quy tắc tính đạo hàm</div>
+      <div class="formula-grid">
+        <div class="formula-card" style="--f-color:#2980b9" data-keywords="tổng hiệu u+v cộng trừ">
+          <div class="formula-tag">Quy tắc</div>
+          <div class="formula-name">Đạo hàm tổng / hiệu</div>
+          <div class="formula-math">$$(u \pm v)' = u' \pm v'$$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#2980b9" data-keywords="tích u*v nhân leibniz">
+          <div class="formula-tag">Quy tắc</div>
+          <div class="formula-name">Đạo hàm tích</div>
+          <div class="formula-math">$$(u \cdot v)' = u'v + uv'$$</div>
+          <div class="formula-note">Ví dụ: $(x^2 \sin x)' = 2x\sin x + x^2\cos x$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#2980b9" data-keywords="thương u/v chia phân thức">
+          <div class="formula-tag">Quy tắc</div>
+          <div class="formula-name">Đạo hàm thương</div>
+          <div class="formula-math">$$\left(\dfrac{u}{v}\right)' = \dfrac{u'v - uv'}{v^2}$$</div>
+          <div class="formula-note">Điều kiện: $v \neq 0$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#2980b9" data-keywords="hàm hợp chain rule f(g(x))">
+          <div class="formula-tag">Hàm hợp</div>
+          <div class="formula-name">Đạo hàm hàm hợp (Chain Rule)</div>
+          <div class="formula-math">$$[f(g(x))]' = f'(g(x)) \cdot g'(x)$$</div>
+          <div class="formula-note">Ví dụ: $(\sin 2x)' = \cos 2x \cdot 2 = 2\cos 2x$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#2980b9" data-keywords="hệ số k nhân ku">
+          <div class="formula-tag">Quy tắc</div>
+          <div class="formula-name">Đạo hàm nhân hệ số</div>
+          <div class="formula-math">$$(ku)' = k \cdot u'$$</div>
+          <div class="formula-note">$k$ là hằng số</div>
+        </div>
+        <div class="formula-card" style="--f-color:#2980b9" data-keywords="u^n lũy thừa hàm hợp">
+          <div class="formula-tag">Lũy thừa hàm hợp</div>
+          <div class="formula-name">Đạo hàm [u(x)]^n</div>
+          <div class="formula-math">$$[u^n]' = n \cdot u^{n-1} \cdot u'$$</div>
+          <div class="formula-note">Ví dụ: $(\sin^3 x)' = 3\sin^2 x \cdot \cos x$</div>
+        </div>
+      </div>
+    </div><!-- end deriv -->
+
+    <!-- TÍCH PHÂN -->
+    <div class="formula-section" id="section-integ">
+
+      <div class="formula-section-title">Nguyên hàm cơ bản</div>
+      <div class="formula-grid">
+        <div class="formula-card" style="--f-color:#e67e22" data-keywords="hằng số dx tích phân cơ bản">
+          <div class="formula-tag">Cơ bản</div>
+          <div class="formula-name">Tích phân hằng số</div>
+          <div class="formula-math">$$\int dx = x + C$$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#e67e22" data-keywords="x^n lũy thừa power">
+          <div class="formula-tag">Lũy thừa</div>
+          <div class="formula-name">Tích phân x^n</div>
+          <div class="formula-math">$$\int x^n\, dx = \dfrac{x^{n+1}}{n+1} + C$$</div>
+          <div class="formula-note">Điều kiện: $n \neq -1$. Ví dụ: $\int x^2 dx = \dfrac{x^3}{3}+C$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#e67e22" data-keywords="1/x nghịch đảo logarit">
+          <div class="formula-tag">Logarit</div>
+          <div class="formula-name">Tích phân 1/x</div>
+          <div class="formula-math">$$\int \dfrac{1}{x}\, dx = \ln|x| + C$$</div>
+          <div class="formula-note">Điều kiện: $x \neq 0$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#e67e22" data-keywords="căn bậc hai sqrt">
+          <div class="formula-tag">Căn</div>
+          <div class="formula-name">Tích phân √x</div>
+          <div class="formula-math">$$\int \sqrt{x}\, dx = \dfrac{2}{3}x^{3/2} + C$$</div>
+        </div>
+      </div>
+
+      <div class="formula-section-title">Hàm mũ &amp; logarit</div>
+      <div class="formula-grid">
+        <div class="formula-card" style="--f-color:#9b59b6" data-keywords="e^x mũ tự nhiên euler">
+          <div class="formula-tag">Mũ tự nhiên</div>
+          <div class="formula-name">Tích phân e^x</div>
+          <div class="formula-math">$$\int e^x\, dx = e^x + C$$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#9b59b6" data-keywords="a^x mũ cơ số">
+          <div class="formula-tag">Hàm mũ</div>
+          <div class="formula-name">Tích phân a^x</div>
+          <div class="formula-math">$$\int a^x\, dx = \dfrac{a^x}{\ln a} + C$$</div>
+          <div class="formula-note">Với $a > 0,\ a \neq 1$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#9b59b6" data-keywords="e^kx mũ hàm hợp">
+          <div class="formula-tag">Hàm hợp</div>
+          <div class="formula-name">Tích phân e^(kx)</div>
+          <div class="formula-math">$$\int e^{kx}\, dx = \dfrac{1}{k}e^{kx} + C$$</div>
+          <div class="formula-note">$k$ là hằng số, $k \neq 0$</div>
+        </div>
+      </div>
+
+      <div class="formula-section-title">Hàm lượng giác</div>
+      <div class="formula-grid">
+        <div class="formula-card" style="--f-color:#16a085" data-keywords="sin sinx lượng giác">
+          <div class="formula-tag">Lượng giác</div>
+          <div class="formula-name">Tích phân sin(x)</div>
+          <div class="formula-math">$$\int \sin x\, dx = -\cos x + C$$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#16a085" data-keywords="cos cosx lượng giác">
+          <div class="formula-tag">Lượng giác</div>
+          <div class="formula-name">Tích phân cos(x)</div>
+          <div class="formula-math">$$\int \cos x\, dx = \sin x + C$$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#16a085" data-keywords="1/cos^2 tan sec^2">
+          <div class="formula-tag">Lượng giác</div>
+          <div class="formula-name">Tích phân 1/cos²(x)</div>
+          <div class="formula-math">$$\int \dfrac{1}{\cos^2 x}\, dx = \tan x + C$$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#16a085" data-keywords="1/sin^2 cot csc^2">
+          <div class="formula-tag">Lượng giác</div>
+          <div class="formula-name">Tích phân 1/sin²(x)</div>
+          <div class="formula-math">$$\int \dfrac{1}{\sin^2 x}\, dx = -\cot x + C$$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#16a085" data-keywords="sin^2 cos^2 hạ bậc">
+          <div class="formula-tag">Hạ bậc</div>
+          <div class="formula-name">Tích phân sin²(x)</div>
+          <div class="formula-math">$$\int \sin^2 x\, dx = \dfrac{x}{2} - \dfrac{\sin 2x}{4} + C$$</div>
+          <div class="formula-note">Dùng công thức hạ bậc: $\sin^2x = \dfrac{1-\cos 2x}{2}$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#16a085" data-keywords="cos^2 hạ bậc">
+          <div class="formula-tag">Hạ bậc</div>
+          <div class="formula-name">Tích phân cos²(x)</div>
+          <div class="formula-math">$$\int \cos^2 x\, dx = \dfrac{x}{2} + \dfrac{\sin 2x}{4} + C$$</div>
+          <div class="formula-note">Dùng: $\cos^2 x = \dfrac{1+\cos 2x}{2}$</div>
+        </div>
+      </div>
+
+      <div class="formula-section-title">Tích phân đặc biệt</div>
+      <div class="formula-grid">
+        <div class="formula-card" style="--f-color:#c0392b" data-keywords="arcsin 1/sqrt(1-x^2)">
+          <div class="formula-tag">Hàm ngược</div>
+          <div class="formula-name">Tích phân cho arcsin</div>
+          <div class="formula-math">$$\int \dfrac{1}{\sqrt{1-x^2}}\, dx = \arcsin x + C$$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#c0392b" data-keywords="arctan 1/(1+x^2)">
+          <div class="formula-tag">Hàm ngược</div>
+          <div class="formula-name">Tích phân cho arctan</div>
+          <div class="formula-math">$$\int \dfrac{1}{1+x^2}\, dx = \arctan x + C$$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#c0392b" data-keywords="1/(x^2+a^2) arctan dạng">
+          <div class="formula-tag">Dạng tổng quát</div>
+          <div class="formula-name">Tích phân 1/(x²+a²)</div>
+          <div class="formula-math">$$\int \dfrac{1}{x^2+a^2}\, dx = \dfrac{1}{a}\arctan\dfrac{x}{a} + C$$</div>
+        </div>
+      </div>
+
+      <div class="formula-section-title">Phương pháp tính tích phân</div>
+      <div class="formula-grid">
+        <div class="formula-card" style="--f-color:#34495e" data-keywords="tuyến tính linearity tổng hằng số">
+          <div class="formula-tag">Tính chất</div>
+          <div class="formula-name">Tính tuyến tính</div>
+          <div class="formula-math">$$\int [f(x) \pm g(x)]\, dx = \int f\, dx \pm \int g\, dx$$</div>
+          <div class="formula-math" style="margin-top:6px">$$\int k\cdot f(x)\, dx = k\int f(x)\, dx$$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#34495e" data-keywords="từng phần integration by parts u dv">
+          <div class="formula-tag">Phương pháp</div>
+          <div class="formula-name">Tích phân từng phần</div>
+          <div class="formula-math">$$\int u\, dv = uv - \int v\, du$$</div>
+          <div class="formula-note">Ví dụ: $\int x e^x dx$ — chọn $u=x,\ dv=e^x dx$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#34495e" data-keywords="đổi biến substitution t=g(x)">
+          <div class="formula-tag">Phương pháp</div>
+          <div class="formula-name">Đổi biến số</div>
+          <div class="formula-math">$$\int f(g(x))\cdot g'(x)\, dx = \int f(t)\, dt$$</div>
+          <div class="formula-note">Đặt $t = g(x)$, suy ra $dt = g'(x)\,dx$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#34495e" data-keywords="newton leibniz xác định a b">
+          <div class="formula-tag">Tích phân xác định</div>
+          <div class="formula-name">Công thức Newton – Leibniz</div>
+          <div class="formula-math">$$\int_a^b f(x)\, dx = F(b) - F(a)$$</div>
+          <div class="formula-note">$F(x)$ là một nguyên hàm bất kỳ của $f(x)$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#34495e" data-keywords="tích phân xác định tính chất additive">
+          <div class="formula-tag">Tính chất</div>
+          <div class="formula-name">Chia khoảng tích phân</div>
+          <div class="formula-math">$$\int_a^b f\,dx = \int_a^c f\,dx + \int_c^b f\,dx$$</div>
+          <div class="formula-note">Với $a \leq c \leq b$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#34495e" data-keywords="đổi cận đảo ngược a b">
+          <div class="formula-tag">Tính chất</div>
+          <div class="formula-name">Đổi cận tích phân</div>
+          <div class="formula-math">$$\int_a^b f(x)\,dx = -\int_b^a f(x)\,dx$$</div>
+        </div>
+      </div>
+
+    </div><!-- end integ -->
+
+    <!-- HÓA HỌC -->
+    <div class="formula-section" id="section-chem">
+
+      <div class="formula-section-title">Hóa học đại cương</div>
+      <div class="formula-grid">
+        <div class="formula-card" style="--f-color:#e74c3c" data-keywords="mol số mol khối lượng phân tử">
+          <div class="formula-tag">Mol</div>
+          <div class="formula-name">Số mol theo khối lượng</div>
+          <div class="formula-math">$$n = \dfrac{m}{M}$$</div>
+          <div class="formula-note">$n$: số mol, $m$: khối lượng (g), $M$: khối lượng mol (g/mol)</div>
+        </div>
+        <div class="formula-card" style="--f-color:#e74c3c" data-keywords="mol thể tích khí ĐKTC 22.4">
+          <div class="formula-tag">Mol</div>
+          <div class="formula-name">Số mol khí ở ĐKTC</div>
+          <div class="formula-math">$$n = \dfrac{V}{22{,}4}$$</div>
+          <div class="formula-note">$V$ (lít) ở điều kiện tiêu chuẩn (0°C, 1 atm)</div>
+        </div>
+        <div class="formula-card" style="--f-color:#e74c3c" data-keywords="mol nồng độ dung dịch C">
+          <div class="formula-tag">Dung dịch</div>
+          <div class="formula-name">Nồng độ mol</div>
+          <div class="formula-math">$$C_M = \dfrac{n}{V_{dd}}$$</div>
+          <div class="formula-note">$C_M$ (mol/L), $V_{dd}$ thể tích dung dịch (L)</div>
+        </div>
+        <div class="formula-card" style="--f-color:#e74c3c" data-keywords="nồng độ phần trăm C% khối lượng">
+          <div class="formula-tag">Dung dịch</div>
+          <div class="formula-name">Nồng độ phần trăm</div>
+          <div class="formula-math">$$C\% = \dfrac{m_{ct}}{m_{dd}} \times 100\%$$</div>
+          <div class="formula-note">$m_{ct}$: khối lượng chất tan, $m_{dd}$: khối lượng dung dịch</div>
+        </div>
+        <div class="formula-card" style="--f-color:#e74c3c" data-keywords="khối lượng riêng thể tích dung dịch D">
+          <div class="formula-tag">Dung dịch</div>
+          <div class="formula-name">Khối lượng dung dịch</div>
+          <div class="formula-math">$$m_{dd} = D \cdot V_{dd}$$</div>
+          <div class="formula-note">$D$: khối lượng riêng (g/mL), $V_{dd}$ (mL)</div>
+        </div>
+        <div class="formula-card" style="--f-color:#e74c3c" data-keywords="avogadro số hạt phân tử nguyên tử N">
+          <div class="formula-tag">Avogadro</div>
+          <div class="formula-name">Số hạt vi mô</div>
+          <div class="formula-math">$$N = n \cdot N_A$$</div>
+          <div class="formula-note">$N_A = 6{,}022 \times 10^{23}$ hạt/mol</div>
+        </div>
+      </div>
+
+      <div class="formula-section-title">Hiệu suất phản ứng &amp; pha trộn</div>
+      <div class="formula-grid">
+        <div class="formula-card" style="--f-color:#8e44ad" data-keywords="hiệu suất phản ứng H% thực tế lý thuyết">
+          <div class="formula-tag">Hiệu suất</div>
+          <div class="formula-name">Hiệu suất phản ứng</div>
+          <div class="formula-math">$$H\% = \dfrac{m_{\text{thực tế}}}{m_{\text{lý thuyết}}} \times 100\%$$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#8e44ad" data-keywords="pha trộn dung dịch trộn C1 V1 C2 V2">
+          <div class="formula-tag">Pha trộn</div>
+          <div class="formula-name">Trộn hai dung dịch</div>
+          <div class="formula-math">$$C_M = \dfrac{C_1 V_1 + C_2 V_2}{V_1 + V_2}$$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#8e44ad" data-keywords="tỉ khối khí d M hơi so với không khí">
+          <div class="formula-tag">Khí</div>
+          <div class="formula-name">Tỉ khối hơi so với không khí</div>
+          <div class="formula-math">$$d_{A/\text{kk}} = \dfrac{M_A}{29}$$</div>
+          <div class="formula-note">Khối lượng mol trung bình của không khí ≈ 29 g/mol</div>
+        </div>
+        <div class="formula-card" style="--f-color:#8e44ad" data-keywords="khí lý tưởng PV nRT áp suất">
+          <div class="formula-tag">Khí lý tưởng</div>
+          <div class="formula-name">Phương trình trạng thái khí</div>
+          <div class="formula-math">$$PV = nRT$$</div>
+          <div class="formula-note">$R = 0{,}082$ L·atm/(mol·K); $T$ (K) = $t$°C + 273</div>
+        </div>
+      </div>
+
+      <div class="formula-section-title">Điện hóa học</div>
+      <div class="formula-grid">
+        <div class="formula-card" style="--f-color:#27ae60" data-keywords="faraday điện phân khối lượng m điện cực">
+          <div class="formula-tag">Điện phân</div>
+          <div class="formula-name">Khối lượng chất điện phân (Faraday)</div>
+          <div class="formula-math">$$m = \dfrac{A \cdot I \cdot t}{n \cdot F}$$</div>
+          <div class="formula-note">$A$: khối lượng mol, $I$: cường độ dòng (A), $t$: thời gian (s), $n$: số electron, $F = 96500$ C/mol</div>
+        </div>
+        <div class="formula-card" style="--f-color:#27ae60" data-keywords="pH axit bazơ H+ OH- log">
+          <div class="formula-tag">Axit – Bazơ</div>
+          <div class="formula-name">pH dung dịch</div>
+          <div class="formula-math">$$\text{pH} = -\log[\text{H}^+]$$</div>
+          <div class="formula-note">pH &lt; 7: axit; pH = 7: trung tính; pH &gt; 7: bazơ</div>
+        </div>
+        <div class="formula-card" style="--f-color:#27ae60" data-keywords="pOH OH- bazơ log kiềm">
+          <div class="formula-tag">Axit – Bazơ</div>
+          <div class="formula-name">pOH và quan hệ với pH</div>
+          <div class="formula-math">$$\text{pOH} = -\log[\text{OH}^-]$$$$\text{pH} + \text{pOH} = 14$$</div>
+        </div>
+      </div>
+
+      <div class="formula-section-title">Hóa hữu cơ – Công thức tính nhanh</div>
+      <div class="formula-grid">
+        <div class="formula-card" style="--f-color:#2980b9" data-keywords="độ bất bão hòa k pi vòng liên kết đôi">
+          <div class="formula-tag">Hữu cơ</div>
+          <div class="formula-name">Độ bất bão hòa (k)</div>
+          <div class="formula-math">$$k = \dfrac{2C + 2 + N - H - X}{2}$$</div>
+          <div class="formula-note">$C$: cacbon, $H$: hydro, $N$: nitơ, $X$: halogen</div>
+        </div>
+        <div class="formula-card" style="--f-color:#2980b9" data-keywords="phân tử khối trung bình hỗn hợp M bar">
+          <div class="formula-tag">Hỗn hợp</div>
+          <div class="formula-name">Khối lượng mol trung bình</div>
+          <div class="formula-math">$$\bar{M} = \dfrac{m_{\text{hh}}}{n_{\text{hh}}} = \sum x_i M_i$$</div>
+          <div class="formula-note">$x_i$: phần mol của chất $i$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#2980b9" data-keywords="este este hóa phản ứng cân bằng ROH R'COOH">
+          <div class="formula-tag">Este</div>
+          <div class="formula-name">Phản ứng este hóa</div>
+          <div class="formula-math">$$\text{R'COOH} + \text{ROH} \underset{\Delta}{\overset{H_2SO_4}{\rightleftharpoons}} \text{R'COOR} + \text{H}_2\text{O}$$</div>
+        </div>
+        <div class="formula-card" style="--f-color:#2980b9" data-keywords="ankan CnH2n+2 công thức tổng quát">
+          <div class="formula-tag">Ankan</div>
+          <div class="formula-name">Công thức tổng quát ankan</div>
+          <div class="formula-math">$$\text{C}_n\text{H}_{2n+2} \quad (n \geq 1)$$</div>
+          <div class="formula-note">$k = 0$. Ví dụ: $n=1$ → CH₄ (metan)</div>
+        </div>
+        <div class="formula-card" style="--f-color:#2980b9" data-keywords="anken CnH2n công thức alkene">
+          <div class="formula-tag">Anken</div>
+          <div class="formula-name">Công thức tổng quát anken</div>
+          <div class="formula-math">$$\text{C}_n\text{H}_{2n} \quad (n \geq 2)$$</div>
+          <div class="formula-note">$k = 1$ (1 liên kết đôi C=C)</div>
+        </div>
+        <div class="formula-card" style="--f-color:#2980b9" data-keywords="ankin CnH2n-2 alkyne liên kết ba">
+          <div class="formula-tag">Ankin</div>
+          <div class="formula-name">Công thức tổng quát ankin</div>
+          <div class="formula-math">$$\text{C}_n\text{H}_{2n-2} \quad (n \geq 2)$$</div>
+          <div class="formula-note">$k = 2$ (1 liên kết ba C≡C)</div>
+        </div>
+      </div>
+
+      <div class="formula-section-title">Nhiệt hóa học</div>
+      <div class="formula-grid">
+        <div class="formula-card" style="--f-color:#e67e22" data-keywords="nhiệt phản ứng enthalpy Q delta H">
+          <div class="formula-tag">Nhiệt hóa học</div>
+          <div class="formula-name">Nhiệt lượng tỏa / thu</div>
+          <div class="formula-math">$$Q = n \cdot |\Delta H|$$</div>
+          <div class="formula-note">$\Delta H &lt; 0$: phản ứng tỏa nhiệt; $\Delta H &gt; 0$: thu nhiệt</div>
+        </div>
+        <div class="formula-card" style="--f-color:#e67e22" data-keywords="Hess định luật nhiệt tạo thành sản phẩm">
+          <div class="formula-tag">Nhiệt hóa học</div>
+          <div class="formula-name">Định luật Hess</div>
+          <div class="formula-math">$$\Delta H_{pư} = \sum \Delta H_{sp} - \sum \Delta H_{cđ}$$</div>
+          <div class="formula-note">sp: sản phẩm, cđ: chất đầu</div>
+        </div>
+        <div class="formula-card" style="--f-color:#e67e22" data-keywords="tốc độ phản ứng nồng độ k C">
+          <div class="formula-tag">Động học</div>
+          <div class="formula-name">Tốc độ phản ứng</div>
+          <div class="formula-math">$$v = k \cdot [A]^m \cdot [B]^n$$</div>
+          <div class="formula-note">$k$: hằng số tốc độ; $m, n$: bậc phản ứng theo thực nghiệm</div>
+        </div>
+      </div>
+
+    </div><!-- end chem -->
+  </div><!-- end notebook-body -->
+</div><!-- end page-formulas -->
+
+<!-- ===== TRANG NHẬT KÝ ===== -->
+<div class="page" id="page-log">
+  <div class="log-header">
+    <h2 class="page-title">📋 Nhật ký <span>học tập</span></h2>
+    <button class="btn-clear" onclick="clearLog()">Xóa lịch sử</button>
+  </div>
+  <div id="logContainer">
+    <div class="log-empty">
+      <div class="log-empty-icon">📖</div>
+      <p>Chưa có Pomodoro nào được ghi lại.<br>Hãy bắt đầu học ngay!</p>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- RELAX FULLSCREEN -->
+<div class="relax-overlay" id="relaxOverlay">
+  <div class="relax-particles" id="relaxParticles"></div>
+  <div class="relax-badge" id="relaxBadge">⏱ 5:00</div>
+  <div id="relaxCard" class="relax-card"></div>
+  <div class="relax-dots" id="relaxDots"></div>
+  <button class="relax-skip" onclick="closeRelaxModal()">Bỏ qua nghỉ ngơi</button>
+</div>
+
+<!-- ===== NOTE WIDGET ===== -->
+<button class="note-fab" id="noteFab" onclick="toggleNotePanel()" title="Ghi chú">
+  📝
+  <span class="note-count-badge" id="noteCountBadge">1</span>
+</button>
+
+<div class="note-panel" id="notePanel">
+  <div class="note-header">
+    <div class="note-header-title">
+      📒 Ghi Chú
+      <span class="note-header-info" id="noteHeaderInfo">1 trang</span>
+    </div>
+    <div class="note-header-btns">
+      <button class="note-header-btn danger" onclick="deleteCurrentNote()" title="Xóa trang này">🗑</button>
+      <button class="note-header-btn" onclick="toggleNotePanel()" title="Đóng">✕</button>
+    </div>
+  </div>
+
+  <div class="note-tabs-row" id="noteTabsRow">
+    <button class="note-tab-add" onclick="addNote()" title="Thêm trang mới">+</button>
+  </div>
+
+  <div class="note-toolbar">
+    <button class="tb-btn" onclick="fmt('bold')" title="In đậm (Ctrl+B)"><b>B</b></button>
+    <button class="tb-btn" onclick="fmt('italic')" title="In nghiêng (Ctrl+I)"><i style="font-family:Georgia">I</i></button>
+    <button class="tb-btn" onclick="fmt('underline')" title="Gạch chân (Ctrl+U)"><u>U</u></button>
+    <button class="tb-btn" onclick="fmt('strikeThrough')" title="Gạch ngang"><s>S</s></button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" onclick="fmtBlock('h1')" title="Tiêu đề lớn" style="font-weight:700;font-size:0.72rem">H1</button>
+    <button class="tb-btn" onclick="fmtBlock('h2')" title="Tiêu đề nhỏ" style="font-size:0.72rem">H2</button>
+    <button class="tb-btn" onclick="fmtBlock('p')" title="Đoạn văn thường" style="font-size:0.9rem">¶</button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" onclick="fmt('insertUnorderedList')" title="Danh sách chấm">•≡</button>
+    <button class="tb-btn" onclick="fmt('insertOrderedList')" title="Danh sách số" style="font-size:0.72rem">1≡</button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" onclick="fmt('justifyLeft')"   title="Căn trái"  style="font-size:0.75rem">⬅</button>
+    <button class="tb-btn" onclick="fmt('justifyCenter')" title="Căn giữa"  style="font-size:0.75rem">⬌</button>
+    <button class="tb-btn" onclick="fmt('justifyRight')"  title="Căn phải"  style="font-size:0.75rem">➡</button>
+    <div class="tb-sep"></div>
+    <select class="tb-select" onchange="setFontSize(this.value)" title="Cỡ chữ">
+      <option value="1">Rất nhỏ</option>
+      <option value="2">Nhỏ</option>
+      <option value="3" selected>Bình thường</option>
+      <option value="4">Vừa</option>
+      <option value="5">Lớn</option>
+      <option value="6">To</option>
+      <option value="7">Rất to</option>
+    </select>
+    <div class="tb-sep"></div>
+    <input type="color" class="tb-color" id="fgColorPicker" value="#1a1a2e"
+           onchange="fmt('foreColor', this.value)" title="Màu chữ">
+    <input type="color" class="tb-color" id="bgColorPicker" value="#ffff88"
+           onchange="fmt('hiliteColor', this.value)" title="Tô màu nền">
+    <div class="tb-sep"></div>
+    <button class="tb-btn" onclick="fmt('removeFormat')" title="Xóa định dạng" style="font-size:0.7rem;color:#e74c3c">✕fmt</button>
+  </div>
+
+  <div class="note-editor-wrap" id="noteEditorWrap">
+    <div class="note-editor"
+         id="noteEditor"
+         contenteditable="true"
+         data-placeholder="Nhập ghi chú tại đây..."
+         oninput="onNoteInput()"
+         onkeydown="handleNoteKey(event)">
+    </div>
+  </div>
+
+  <div class="note-footer">
+    <span id="notePageInfo">Trang 1 / 1</span>
+    <span class="save-indicator">
+      <span class="save-dot" id="saveDot"></span>
+      <span id="saveStatus">Đã lưu</span>
+    </span>
+  </div>
+</div>
+
+<script>
+  // ===== STATE =====
+  const MODES = {
+    work:  { duration: 25 * 60, label: 'Đang học tập trung...', color: '#e74c3c' },
+    short: { duration:  5 * 60, label: 'Nghỉ ngắn — thư giãn!',  color: '#3498db' },
+    long:  { duration: 15 * 60, label: 'Nghỉ dài — nạp năng lượng!', color: '#2ecc71' },
+  };
+
+  let autoCycle = true;
+  let currentMode = 'work';
+  let timeLeft = MODES.work.duration;
+  let totalTime = MODES.work.duration;
+  let isRunning = false;
+  let interval = null;
+  let completedToday = 0;
+  let totalPomodoros = 0;
+  let streakDays = 0;
+  let log = [];
+
+  const CIRCUMFERENCE = 2 * Math.PI * 44; // 276.46
+
+  // ===== LOAD FROM STORAGE =====
+  function loadData() {
+    const saved = JSON.parse(localStorage.getItem('pomodoro_data') || '{}');
+    const today = new Date().toDateString();
+
+    totalPomodoros = saved.totalPomodoros || 0;
+    streakDays = saved.streakDays || 0;
+    log = saved.log || [];
+
+    if (saved.lastDate === today) {
+      completedToday = saved.completedToday || 0;
+    } else {
+      completedToday = 0;
+      // streak check
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      if (saved.lastDate === yesterday.toDateString() && (saved.completedToday || 0) > 0) {
+        streakDays = (saved.streakDays || 0) + 1;
+      } else if (saved.lastDate !== today) {
+        if ((saved.completedToday || 0) === 0) streakDays = saved.streakDays || 0;
+      }
+      saveData(today);
+    }
+    updateUI();
+    renderLog();
+  }
+
+  function saveData(dateOverride) {
+    const today = dateOverride || new Date().toDateString();
+    localStorage.setItem('pomodoro_data', JSON.stringify({
+      completedToday,
+      totalPomodoros,
+      streakDays,
+      lastDate: today,
+      log: log.slice(-100),
+    }));
+  }
+
+  // ===== TIMER =====
+  function setMode(mode, btn) {
+    if (isRunning) return;
+    currentMode = mode;
+    timeLeft = MODES[mode].duration;
+    totalTime = MODES[mode].duration;
+
+    document.querySelectorAll('.mode-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    document.getElementById('progressRing').style.stroke = MODES[mode].color;
+    updateDisplay();
+    updateProgress();
+    document.getElementById('phaseLabel').textContent = 'Sẵn sàng!';
+  }
+
+  function toggleTimer() {
+    if (isRunning) {
+      clearInterval(interval);
+      isRunning = false;
+      document.getElementById('btnStart').textContent = '▶ Tiếp tục';
+      document.getElementById('btnStart').classList.remove('running');
+      if (currentMode === 'work') musicOnStudyPause();
+    } else {
+      isRunning = true;
+      document.getElementById('btnStart').textContent = '⏸ Dừng lại';
+      document.getElementById('btnStart').classList.add('running');
+      document.getElementById('phaseLabel').textContent = MODES[currentMode].label;
+      interval = setInterval(tick, 1000);
+      if (currentMode === 'work') musicOnStudyStart();
+    }
+  }
+
+  function tick() {
+    if (timeLeft <= 0) {
+      clearInterval(interval);
+      isRunning = false;
+      onComplete();
+      return;
+    }
+    timeLeft--;
+    updateDisplay();
+    updateProgress();
+    if (currentMode !== 'work') updateRelaxCountdown();
+  }
+
+  function resetTimer() {
+    clearInterval(interval);
+    isRunning = false;
+    timeLeft = MODES[currentMode].duration;
+    totalTime = MODES[currentMode].duration;
+    document.getElementById('btnStart').textContent = '▶ Bắt đầu';
+    document.getElementById('btnStart').classList.remove('running');
+    document.getElementById('phaseLabel').textContent = 'Sẵn sàng!';
+    musicOnStudyPause();
+    updateDisplay();
+    updateProgress();
+  }
+
+  function onComplete() {
+    document.getElementById('btnStart').textContent = '▶ Bắt đầu';
+    document.getElementById('btnStart').classList.remove('running');
+    document.getElementById('phaseLabel').textContent = '✅ Hoàn thành!';
+
+    playBeep();
+
+    if (currentMode === 'work') {
+      completedToday++;
+      totalPomodoros++;
+      addLog('work');
+      const nextBreak = (completedToday % 4 === 0) ? 'long' : 'short';
+      showRelaxModal(nextBreak);
+      if (autoCycle) {
+        setTimeout(() => { switchModeAuto(nextBreak); toggleTimer(); }, 1800);
+      } else {
+        showToast(`🍅 Pomodoro #${completedToday} xong! Hãy nghỉ ngơi nhé!`);
+      }
+    } else {
+      addLog(currentMode);
+      closeRelaxModal();
+      showToast(`✅ Nghỉ xong! ${autoCycle ? 'Tự động bắt đầu phiên học mới...' : 'Sẵn sàng cho vòng tiếp theo chưa?'}`);
+      if (autoCycle) {
+        setTimeout(() => { switchModeAuto('work'); toggleTimer(); }, 1800);
+      }
+    }
+
+    saveData();
+    updateUI();
+  }
+
+  function switchModeAuto(mode) {
+    currentMode = mode;
+    timeLeft = MODES[mode].duration;
+    totalTime = MODES[mode].duration;
+    document.querySelectorAll('.mode-tab').forEach(b => b.classList.remove('active'));
+    const tabs = { work: 'modeTabWork', short: 'modeTabShort', long: 'modeTabLong' };
+    document.getElementById(tabs[mode]).classList.add('active');
+    document.getElementById('progressRing').style.stroke = MODES[mode].color;
+    updateDisplay();
+    updateProgress();
+    document.getElementById('phaseLabel').textContent = MODES[mode].label;
+  }
+
+  function updateDisplay() {
+    const m = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+    const s = String(timeLeft % 60).padStart(2, '0');
+    document.getElementById('timerDisplay').textContent = `${m}:${s}`;
+  }
+
+  function updateProgress() {
+    const fraction = timeLeft / totalTime;
+    const offset = CIRCUMFERENCE * (1 - fraction);
+    document.getElementById('progressRing').style.strokeDashoffset = offset;
+  }
+
+  function updateUI() {
+    document.getElementById('todayCount').textContent = completedToday;
+    document.getElementById('totalMinutes').textContent = completedToday * 25;
+    document.getElementById('statToday').textContent = completedToday;
+    document.getElementById('statTotal').textContent = totalPomodoros;
+    document.getElementById('statStreak').textContent = streakDays;
+
+    if (streakDays === 0) {
+      document.getElementById('streakTitle').textContent = 'Hãy bắt đầu chuỗi học của bạn!';
+      document.getElementById('streakSub').textContent = 'Học đều đặn mỗi ngày để duy trì streak nhé!';
+    } else {
+      document.getElementById('streakTitle').textContent = `${streakDays} ngày học liên tiếp! Tuyệt vời!`;
+      document.getElementById('streakSub').textContent = `Bạn đã duy trì được ${streakDays} ngày — đừng để mất nhé!`;
+    }
+  }
+
+  // ===== LOG =====
+  function addLog(type) {
+    const now = new Date();
+    const time = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    const date = now.toLocaleDateString('vi-VN');
+    const labels = {
+      work: `🍅 Hoàn thành Pomodoro #${completedToday}`,
+      short: '☕ Nghỉ ngắn 5 phút',
+      long: '🌿 Nghỉ dài 15 phút',
+    };
+    log.unshift({ type, label: labels[type], time, date });
+    renderLog();
+  }
+
+  function renderLog() {
+    const container = document.getElementById('logContainer');
+    if (log.length === 0) {
+      container.innerHTML = `
+        <div class="log-empty">
+          <div class="log-empty-icon">📖</div>
+          <p>Chưa có Pomodoro nào được ghi lại.<br>Hãy bắt đầu học ngay!</p>
+        </div>`;
+      return;
+    }
+    container.innerHTML = `<div class="log-list">${
+      log.slice(0, 50).map(item => `
+        <div class="log-item">
+          <div class="log-dot ${item.type !== 'work' ? 'break' : ''}"></div>
+          <div class="log-text">${item.label}</div>
+          <div class="log-time">${item.date} ${item.time}</div>
+        </div>`).join('')
+    }</div>`;
+  }
+
+  function clearLog() {
+    if (!confirm('Xóa toàn bộ lịch sử học tập?')) return;
+    log = [];
+    saveData();
+    renderLog();
+    showToast('Đã xóa lịch sử.');
+  }
+
+  // ===== PAGES =====
+  function showPage(name, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-links button').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    btn.classList.add('active');
+    if (name === 'log') renderLog();
+    if (name === 'formulas' && window.MathJax) MathJax.typesetPromise();
+  }
+
+  // ===== TOAST =====
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 4000);
+  }
+
+  // ===== RELAX FULLSCREEN =====
+  const RELAX_STEPS = [
+    {
+      title: 'Uống nước 💧',
+      desc: 'Đứng dậy, rót một cốc nước mát và uống từ từ.<br>Não bộ cần nước để hoạt động tốt nhất!',
+      duration: 45,
+      anim: `<div class="anim-water">
+               <div class="water-drop"></div>
+               <div class="water-ripple"></div>
+             </div>`,
+    },
+    {
+      title: 'Vươn vai & lắc cổ 🙆',
+      desc: 'Giơ hai tay lên cao, hít thật sâu.<br>Vươn người sang trái rồi sang phải, xoay nhẹ cổ.',
+      duration: 45,
+      anim: `<div class="anim-stretch" style="position:relative;width:70px;height:100px;margin:20px auto 0">
+               <div class="stretch-arms"></div>
+               <div class="stretch-head"></div>
+               <div class="stretch-body"></div>
+               <div class="stretch-legs">
+                 <div class="stretch-leg"></div>
+                 <div class="stretch-leg"></div>
+               </div>
+             </div>`,
+    },
+    {
+      title: 'Đảo mắt & nhìn xa 👁️',
+      desc: 'Đảo mắt chậm theo vòng tròn 3 lần.<br>Sau đó nhìn ra điểm xa nhất bạn thấy được trong ~20 giây.',
+      duration: 45,
+      anim: `<div class="anim-eye">
+               <div class="eye-pupil"></div>
+             </div>`,
+    },
+    {
+      title: 'Tự do thư giãn ✨',
+      desc: 'Bạn đã hoàn thành các bài tập!<br>Tận hưởng phần còn lại của giờ nghỉ nhé.',
+      duration: null,
+      anim: `<div class="anim-free">
+               <span class="free-star">⭐</span>
+               <span class="free-star">🌟</span>
+               <span class="free-star">✨</span>
+               <span class="free-star">💫</span>
+               <span class="free-star">⭐</span>
+             </div>`,
+    },
+  ];
+
+  let relaxStepIndex = 0;
+  let relaxStepTimer = 0;
+  let relaxStepTotal = 0;
+  let relaxPreviewInterval = null;
+  let relaxPreviewSecs = 0;
+
+  function showRelaxModal(breakType) {
+    relaxStepIndex = 0;
+    relaxStepTimer = 0;
+
+    // nếu không có break timer đang chạy → chạy countdown riêng
+    if (!isRunning || currentMode === 'work') {
+      relaxPreviewSecs = breakType === 'long' ? 900 : 300;
+      clearInterval(relaxPreviewInterval);
+      relaxPreviewInterval = setInterval(() => {
+        if (relaxPreviewSecs > 0) {
+          relaxPreviewSecs--;
+          tickRelaxDisplay(relaxPreviewSecs);
+        } else {
+          clearInterval(relaxPreviewInterval);
+          closeRelaxModal();
+        }
+      }, 1000);
+    }
+
+    // build particles
+    const pc = document.getElementById('relaxParticles');
+    pc.innerHTML = '';
+    for (let i = 0; i < 18; i++) {
+      const p = document.createElement('div');
+      p.className = 'relax-particle';
+      const size = 6 + Math.random() * 20;
+      p.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;bottom:-${size}px;
+        animation-duration:${6+Math.random()*10}s;animation-delay:${Math.random()*8}s`;
+      pc.appendChild(p);
+    }
+
+    // build dots
+    const dots = document.getElementById('relaxDots');
+    dots.innerHTML = RELAX_STEPS.map((_, i) =>
+      `<div class="relax-dot" id="rdot${i}"></div>`).join('');
+
+    document.getElementById('relaxOverlay').classList.add('show');
+    renderRelaxStep();
+  }
+
+  function renderRelaxStep() {
+    const step = RELAX_STEPS[relaxStepIndex];
+    relaxStepTotal = step.duration || timeLeft;
+    relaxStepTimer = 0;
+
+    document.querySelectorAll('.relax-dot').forEach((d, i) => {
+      d.className = 'relax-dot' + (i < relaxStepIndex ? ' done' : i === relaxStepIndex ? ' active' : '');
+    });
+
+    const card = document.getElementById('relaxCard');
+    card.className = 'relax-card';
+    card.innerHTML = `
+      <div class="relax-anim-wrap">${step.anim}</div>
+      <div class="relax-step-title">${step.title}</div>
+      <div class="relax-step-desc">${step.desc}</div>
+      <div class="relax-bar-wrap"><div class="relax-bar" id="relaxBar"></div></div>`;
+
+    // trigger bar animation after paint
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const bar = document.getElementById('relaxBar');
+        if (bar) bar.style.width = '100%';
+        if (bar) bar.style.transitionDuration = (step.duration || 9999) + 's';
+      });
+    });
+  }
+
+  function tickRelaxDisplay(secs) {
+    const m = Math.floor(secs / 60);
+    const s = String(secs % 60).padStart(2, '0');
+    document.getElementById('relaxBadge').textContent = `⏱ ${m}:${s}`;
+
+    const step = RELAX_STEPS[relaxStepIndex];
+    if (step && step.duration !== null) {
+      relaxStepTimer++;
+      if (relaxStepTimer >= step.duration) {
+        const card = document.getElementById('relaxCard');
+        card.classList.add('leaving');
+        setTimeout(() => {
+          relaxStepIndex++;
+          if (relaxStepIndex < RELAX_STEPS.length) renderRelaxStep();
+        }, 420);
+      }
+    }
+  }
+
+  // gọi từ tick() khi break timer thật đang chạy
+  function updateRelaxCountdown() {
+    tickRelaxDisplay(timeLeft);
+  }
+
+  function closeRelaxModal() {
+    clearInterval(relaxPreviewInterval);
+    relaxPreviewInterval = null;
+    document.getElementById('relaxOverlay').classList.remove('show');
+  }
+
+  // ===== BEEP =====
+  function playBeep() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      [0, 0.2, 0.4].forEach((delay, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = i === 2 ? 880 : 660;
+        gain.gain.setValueAtTime(0.3, ctx.currentTime + delay);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.3);
+        osc.start(ctx.currentTime + delay);
+        osc.stop(ctx.currentTime + delay + 0.3);
+      });
+    } catch(e) {}
+  }
+
+  // ===== MUSIC PLAYER =====
+  const PLAYLIST = [
+    { name: 'Alex Grohl — Classical',         file: 'assets/alexgrohl-classical-446258.mp3' },
+    { name: 'Soulful Strings (Violin)',        file: 'assets/soulfuljamtracks-strings-violin-background-478146.mp3' },
+    { name: 'The Mountain — Orchestral',       file: 'assets/the_mountain-classical-orchestral-inspiring-317780.mp3' },
+    { name: 'Piano Classical I',               file: 'assets/tunetank-piano-classical-music-347514.mp3' },
+    { name: 'Piano Classical II',              file: 'assets/tunetank-piano-classical-music-348133.mp3' },
+    { name: 'Piano Classical III',             file: 'assets/tunetank-piano-classical-music-349861.mp3' },
+    { name: 'Vibehorn — Violin',               file: 'assets/vibehorn-violin-classical-478163.mp3' },
+  ];
+
+  let audio = new Audio();
+  let currentTrack = 0;
+  let isMusicPlaying = false;
+  let isShuffle = false;
+  let isMuted = false;
+  let savedVolume = 60;
+
+  audio.volume = 0.6;
+
+  audio.addEventListener('ended', () => nextTrack());
+
+  function buildPlaylist() {
+    const el = document.getElementById('playlistEl');
+    el.innerHTML = PLAYLIST.map((t, i) => `
+      <div class="playlist-item ${i === currentTrack ? 'active' : ''}" id="pl-item-${i}" onclick="playTrack(${i})">
+        <span class="pl-num">${i + 1}</span>
+        <span class="pl-icon">${i === currentTrack && isMusicPlaying ? '🎵' : '♪'}</span>
+        <span class="pl-name">${t.name}</span>
+      </div>`).join('');
+  }
+
+  function playTrack(index) {
+    currentTrack = index;
+    audio.src = PLAYLIST[index].file;
+    audio.play();
+    isMusicPlaying = true;
+    updateMusicUI();
+    buildPlaylist();
+  }
+
+  function toggleMusic() {
+    if (isMusicPlaying) {
+      audio.pause();
+      isMusicPlaying = false;
+    } else {
+      if (!audio.src || audio.src === window.location.href) {
+        audio.src = PLAYLIST[currentTrack].file;
+      }
+      audio.play();
+      isMusicPlaying = true;
+    }
+    updateMusicUI();
+    buildPlaylist();
+  }
+
+  function nextTrack() {
+    if (isShuffle) {
+      let next;
+      do { next = Math.floor(Math.random() * PLAYLIST.length); } while (next === currentTrack && PLAYLIST.length > 1);
+      currentTrack = next;
+    } else {
+      currentTrack = (currentTrack + 1) % PLAYLIST.length;
+    }
+    playTrack(currentTrack);
+  }
+
+  function prevTrack() {
+    if (audio.currentTime > 3) { audio.currentTime = 0; return; }
+    currentTrack = (currentTrack - 1 + PLAYLIST.length) % PLAYLIST.length;
+    playTrack(currentTrack);
+  }
+
+  function toggleShuffle() {
+    isShuffle = !isShuffle;
+    document.getElementById('btnShuffle').classList.toggle('active', isShuffle);
+  }
+
+  function setVolume(val) {
+    const v = parseInt(val);
+    audio.volume = v / 100;
+    savedVolume = v;
+    isMuted = v === 0;
+    document.getElementById('volValue').textContent = v + '%';
+    document.getElementById('volIcon').textContent = v === 0 ? '🔇' : v < 40 ? '🔉' : '🔊';
+  }
+
+  function toggleMute() {
+    if (isMuted) {
+      audio.volume = savedVolume / 100;
+      document.getElementById('volumeSlider').value = savedVolume;
+      document.getElementById('volValue').textContent = savedVolume + '%';
+      document.getElementById('volIcon').textContent = savedVolume < 40 ? '🔉' : '🔊';
+      isMuted = false;
+    } else {
+      savedVolume = parseInt(document.getElementById('volumeSlider').value);
+      audio.volume = 0;
+      document.getElementById('volumeSlider').value = 0;
+      document.getElementById('volValue').textContent = '0%';
+      document.getElementById('volIcon').textContent = '🔇';
+      isMuted = true;
+    }
+  }
+
+  function togglePlaylist() {
+    const el = document.getElementById('playlistEl');
+    const icon = document.getElementById('plToggleIcon');
+    el.classList.toggle('open');
+    icon.textContent = el.classList.contains('open') ? '▾' : '▸';
+  }
+
+  function updateMusicUI() {
+    const t = PLAYLIST[currentTrack];
+    document.getElementById('trackName').textContent = t.name;
+    document.getElementById('trackSub').textContent = isMusicPlaying ? '▶ Đang phát...' : '⏸ Đã dừng';
+    document.getElementById('btnPlayPause').textContent = isMusicPlaying ? '⏸' : '▶';
+    const vinyl = document.getElementById('musicVinyl');
+    vinyl.textContent = isMusicPlaying ? '🎵' : '🎵';
+    if (isMusicPlaying) vinyl.classList.add('spinning');
+    else vinyl.classList.remove('spinning');
+  }
+
+  function musicOnStudyStart() {
+    if (!isMusicPlaying) {
+      if (!audio.src || audio.src === window.location.href) {
+        audio.src = PLAYLIST[currentTrack].file;
+      }
+      audio.play().catch(() => {});
+      isMusicPlaying = true;
+      updateMusicUI();
+      buildPlaylist();
+    }
+  }
+
+  function musicOnStudyPause() {
+    if (isMusicPlaying) {
+      audio.pause();
+      isMusicPlaying = false;
+      updateMusicUI();
+      buildPlaylist();
+    }
+  }
+
+  buildPlaylist();
+
+  // ===== NOTEBOOK TABS =====
+  function switchNbTab(tab, btn) {
+    document.querySelectorAll('.formula-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.notebook-tab').forEach(b => b.classList.remove('active'));
+    document.getElementById('section-' + tab).classList.add('active');
+    btn.classList.add('active');
+    document.getElementById('formulaSearch').value = '';
+    document.getElementById('no-results').style.display = 'none';
+    document.querySelectorAll('.formula-card').forEach(c => c.classList.remove('hidden'));
+    if (window.MathJax) MathJax.typesetPromise();
+  }
+
+  // ===== FORMULA SEARCH =====
+  function filterFormulas() {
+    const q = document.getElementById('formulaSearch').value.toLowerCase().trim();
+    const cards = document.querySelectorAll('.formula-section.active .formula-card');
+    let found = 0;
+    cards.forEach(card => {
+      const text = (card.textContent + card.dataset.keywords).toLowerCase();
+      if (!q || text.includes(q)) {
+        card.classList.remove('hidden');
+        found++;
+      } else {
+        card.classList.add('hidden');
+      }
+    });
+    document.getElementById('no-results').style.display = found === 0 ? 'block' : 'none';
+  }
+
+  // ===== PRESET =====
+  function applyPreset(work, short, long, btn) {
+    if (isRunning) { showToast('Dừng timer trước khi đổi chu kỳ.'); return; }
+    MODES.work.duration  = work  * 60;
+    MODES.short.duration = short * 60;
+    MODES.long.duration  = long  * 60;
+    document.getElementById('modeTabWork').textContent  = `🎯 Học (${work} phút)`;
+    document.getElementById('modeTabShort').textContent = `☕ Nghỉ ngắn (${short} phút)`;
+    document.getElementById('modeTabLong').textContent  = `🌿 Nghỉ dài (${long} phút)`;
+    timeLeft = MODES[currentMode].duration;
+    totalTime = MODES[currentMode].duration;
+    updateDisplay();
+    updateProgress();
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('customPresetRow').classList.remove('open');
+    showToast(`Chu kỳ: học ${work} phút / nghỉ ngắn ${short} phút / nghỉ dài ${long} phút`);
+  }
+
+  function toggleCustomPreset(btn) {
+    if (isRunning) { showToast('Dừng timer trước khi đổi chu kỳ.'); return; }
+    const row = document.getElementById('customPresetRow');
+    row.classList.toggle('open');
+  }
+
+  function applyCustomPreset() {
+    const w = Math.max(1,  Math.min(120, parseInt(document.getElementById('customWork').value)  || 25));
+    const s = Math.max(1,  Math.min(60,  parseInt(document.getElementById('customShort').value) || 5));
+    const l = Math.max(5,  Math.min(90,  parseInt(document.getElementById('customLong').value)  || 15));
+    document.getElementById('customWork').value  = w;
+    document.getElementById('customShort').value = s;
+    document.getElementById('customLong').value  = l;
+    applyPreset(w, s, l, document.getElementById('preset-custom'));
+  }
+
+  function toggleAutoCycle() {
+    autoCycle = !autoCycle;
+    document.getElementById('autoCycleSwitch').classList.toggle('on', autoCycle);
+    showToast(autoCycle ? '🔄 Tự động chuyển phiên: Bật' : '⏹ Tự động chuyển phiên: Tắt');
+  }
+
+  // ===== NOTE WIDGET =====
+  let notes = [];
+  let activeNoteId = null;
+  let notePanelOpen = false;
+  let noteAutoSaveTimer = null;
+
+  function initNotes() {
+    const saved = JSON.parse(localStorage.getItem('sticky_notes') || 'null');
+    if (saved && saved.notes && saved.notes.length > 0) {
+      notes = saved.notes;
+      activeNoteId = saved.activeId || notes[0].id;
+    } else {
+      notes = [{ id: Date.now(), title: 'Ghi chú 1', content: '', updated: Date.now() }];
+      activeNoteId = notes[0].id;
+    }
+    renderNoteTabs();
+    loadActiveNote();
+  }
+
+  function saveNotes() {
+    localStorage.setItem('sticky_notes', JSON.stringify({ notes, activeId: activeNoteId }));
+    document.getElementById('saveDot').classList.remove('dirty');
+    const t = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('saveStatus').textContent = 'Đã lưu ' + t;
+  }
+
+  function onNoteInput() {
+    const note = notes.find(n => n.id === activeNoteId);
+    if (note) {
+      note.content = document.getElementById('noteEditor').innerHTML;
+      note.updated = Date.now();
+    }
+    document.getElementById('saveDot').classList.add('dirty');
+    document.getElementById('saveStatus').textContent = 'Chưa lưu...';
+    clearTimeout(noteAutoSaveTimer);
+    noteAutoSaveTimer = setTimeout(saveNotes, 900);
+  }
+
+  function renderNoteTabs() {
+    const row = document.getElementById('noteTabsRow');
+    const addBtn = row.querySelector('.note-tab-add');
+    row.querySelectorAll('.note-tab').forEach(t => t.remove());
+
+    notes.forEach((note, idx) => {
+      const tab = document.createElement('button');
+      tab.className = 'note-tab' + (note.id === activeNoteId ? ' active' : '');
+      tab.dataset.id = note.id;
+      tab.innerHTML =
+        `<span class="tab-name">${safeHtml(note.title)}</span>` +
+        `<span class="tab-del" data-id="${note.id}">✕</span>`;
+      tab.querySelector('.tab-del').onclick = e => { e.stopPropagation(); deleteNote(note.id); };
+      tab.onclick = () => switchNote(note.id);
+      tab.ondblclick = e => { if (!e.target.classList.contains('tab-del')) renameTab(note.id, tab); };
+      row.insertBefore(tab, addBtn);
+    });
+
+    const count = notes.length;
+    document.getElementById('noteHeaderInfo').textContent = count + ' trang';
+    document.getElementById('noteCountBadge').textContent = count;
+    const activeIdx = notes.findIndex(n => n.id === activeNoteId);
+    document.getElementById('notePageInfo').textContent = `Trang ${activeIdx + 1} / ${count}`;
+  }
+
+  function loadActiveNote() {
+    const note = notes.find(n => n.id === activeNoteId);
+    document.getElementById('noteEditor').innerHTML = note ? (note.content || '') : '';
+    document.getElementById('saveDot').classList.remove('dirty');
+    document.getElementById('saveStatus').textContent = 'Đã lưu';
+  }
+
+  function switchNote(id) {
+    const cur = notes.find(n => n.id === activeNoteId);
+    if (cur) cur.content = document.getElementById('noteEditor').innerHTML;
+    activeNoteId = id;
+    renderNoteTabs();
+    loadActiveNote();
+  }
+
+  function addNote() {
+    const note = { id: Date.now(), title: `Ghi chú ${notes.length + 1}`, content: '', updated: Date.now() };
+    notes.push(note);
+    switchNote(note.id);
+    saveNotes();
+    setTimeout(() => document.getElementById('noteEditor').focus(), 80);
+  }
+
+  function deleteNote(id) {
+    if (notes.length <= 1) { showToast('Cần ít nhất 1 trang ghi chú.'); return; }
+    if (!confirm('Xóa trang ghi chú này?')) return;
+    const idx = notes.findIndex(n => n.id === id);
+    notes.splice(idx, 1);
+    if (activeNoteId === id) {
+      activeNoteId = notes[Math.max(0, idx - 1)].id;
+      loadActiveNote();
+    }
+    renderNoteTabs();
+    saveNotes();
+  }
+
+  function deleteCurrentNote() { deleteNote(activeNoteId); }
+
+  function renameTab(id, tabEl) {
+    const note = notes.find(n => n.id === id);
+    if (!note) return;
+    const nameSpan = tabEl.querySelector('.tab-name');
+    const input = document.createElement('input');
+    input.className = 'tab-rename-input';
+    input.value = note.title;
+    nameSpan.replaceWith(input);
+    input.focus(); input.select();
+    const finish = () => {
+      note.title = input.value.trim() || note.title;
+      saveNotes();
+      renderNoteTabs();
+    };
+    input.onblur = finish;
+    input.onkeydown = e => {
+      if (e.key === 'Enter') input.blur();
+      if (e.key === 'Escape') { input.value = note.title; input.blur(); }
+    };
+  }
+
+  function toggleNotePanel() {
+    notePanelOpen = !notePanelOpen;
+    document.getElementById('notePanel').classList.toggle('open', notePanelOpen);
+    document.getElementById('noteFab').classList.toggle('open', notePanelOpen);
+    document.getElementById('noteFab').title = notePanelOpen ? 'Đóng ghi chú' : 'Mở ghi chú';
+    if (notePanelOpen) setTimeout(() => document.getElementById('noteEditor').focus(), 250);
+  }
+
+  function safeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // ===== EDITOR FORMATTING =====
+  function fmt(cmd, value) {
+    document.getElementById('noteEditor').focus();
+    document.execCommand(cmd, false, value !== undefined ? value : null);
+  }
+
+  function fmtBlock(tag) {
+    document.getElementById('noteEditor').focus();
+    document.execCommand('formatBlock', false, tag);
+  }
+
+  function setFontSize(size) {
+    document.getElementById('noteEditor').focus();
+    document.execCommand('fontSize', false, size);
+  }
+
+  function handleNoteKey(e) {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      document.execCommand('insertHTML', false, '&nbsp;&nbsp;&nbsp;&nbsp;');
+    }
+    // Ctrl+B/I/U already handled natively by contenteditable
+  }
+
+  // ===== INIT =====
+  loadData();
+  updateDisplay();
+  updateProgress();
+  initNotes();
+</script>
+</body>
+</html>
